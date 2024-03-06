@@ -13,10 +13,9 @@ celigo script update -i <ID> [ -c <Path/To/Source File Name> -n <Name> -d <Descr
 celigo script add -n <Name> [ -d <Description> -c <Path/To/Source File Name>]
 celigo script remove -i <ID>
 ```
-I will read the api key from the users home directory in the file ".celigo". This file will contain
-the api key only in one line. All commands can take an optional -a option that contains the path to
-the file that contains the api key in it. This allows the user to switch between celigo accounts
-seemlessly, in their "Project Directory"
+
+The API Key will be read from the current working direcotry in the ".celigo" file. This file will
+contain the api key on one line, and thats it.
 
 ## MVP
 - Read api key from users home directory or custom path
