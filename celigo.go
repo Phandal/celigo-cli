@@ -31,7 +31,7 @@ func main() {
 
 	cmd, err = arg.Parse(os.Args)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, ": %v\n", err)
+		fmt.Fprintf(os.Stderr, "%v: %v\n", os.Args[0], err)
 		usage()
 		os.Exit(1)
 	}
