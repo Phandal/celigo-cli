@@ -1,7 +1,6 @@
 package script
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -35,28 +34,25 @@ func Execute(cmd *arg.Command) error {
 }
 
 func list(_ *arg.Command) error {
-	var client http.Client
 	var err error
 	var listSuccessStatusCode = 200
 	var req *http.Request
 	var res *http.Response
 	var scripts []Script
 
-	req, err = util.BuildRequest("GET", util.BaseUrl+relativeUrl, nil)
-	client = http.Client{}
-
-	res, err = client.Do(req)
-	if err != nil {
+	if req, err = util.BuildRequest("GET", util.BaseUrl+relativeUrl, nil); err != nil {
 		return err
 	}
 
-	if res.StatusCode != listSuccessStatusCode {
+	if res, err = util.ExecuteRequest(req); err != nil {
+		return err
+	}
+
+	if !util.CheckStatusCode(res, listSuccessStatusCode) {
 		return fmt.Errorf("List Status Code %v\n", res.StatusCode)
 	}
 
-	err = json.NewDecoder(res.Body).Decode(&scripts)
-
-	if err != nil {
+	if util.DecodeResponse(res, &scripts) != nil {
 		return err
 	}
 
@@ -68,7 +64,6 @@ func list(_ *arg.Command) error {
 }
 
 func fetch(_ *arg.Command) error {
-	var client http.Client
 	var err error
 	var fetchSuccessStatusCode = 200
 	var req *http.Request
@@ -78,20 +73,19 @@ func fetch(_ *arg.Command) error {
 	var id = "65f10091892c590e57254963" // TODO: Find a way to search through the flags for this value
 	var shouldWrite = true              // TODO: make boolean flags work in the parser
 
-	req, err = util.BuildRequest("GET", util.BaseUrl+relativeUrl+"/"+id, nil)
-	client = http.Client{}
-
-	res, err = client.Do(req)
-	if err != nil {
+	if req, err = util.BuildRequest("GET", util.BaseUrl+relativeUrl+"/"+id, nil); err != nil {
 		return err
 	}
 
-	if res.StatusCode != fetchSuccessStatusCode {
+	if res, err = util.ExecuteRequest(req); err != nil {
+		return err
+	}
+
+	if !util.CheckStatusCode(res, fetchSuccessStatusCode) {
 		return fmt.Errorf("Fetch Status Code %v\n", res.StatusCode)
 	}
 
-	err = json.NewDecoder(res.Body).Decode(&script)
-	if err != nil {
+	if util.DecodeResponse(res, &script) != nil {
 		return err
 	}
 
@@ -109,18 +103,18 @@ func fetch(_ *arg.Command) error {
 	return nil
 }
 
-func update(_ *arg.Command) error {
-	var err error
-	var filename = "Test Script 1__65f10091892c590e57254963.js" // TODO: Find a way to get this from the user
-	var req *http.Request
-	var reqBody string
-
-	var id = parseIdFromFilename(filename)
-	if id == "" {
-		return fmt.Errorf("Missing Script Id")
-	}
-
-	req, err = util.BuildRequest("POST", util.BaseUrl+relativeUrl+"/"+id, reqBody)
-
-	return nil
-}
+// func update(_ *arg.Command) error {
+// 	var err error
+// 	var filename = "Test Script 1__65f10091892c590e57254963.js" // TODO: Find a way to get this from the user
+// 	var req *http.Request
+// 	var reqBody string
+//
+// 	var id = parseIdFromFilename(filename)
+// 	if id == "" {
+// 		return fmt.Errorf("Missing Script Id")
+// 	}
+//
+// 	req, err = util.BuildRequest("POST", util.BaseUrl+relativeUrl+"/"+id, reqBody)
+//
+// 	return nil
+// }

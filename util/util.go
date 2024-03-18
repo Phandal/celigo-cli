@@ -1,6 +1,7 @@
 package util
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
@@ -30,4 +31,19 @@ func BuildRequest(method string, url string, body io.Reader) (*http.Request, err
 	req.Header.Add("Authorization", "Bearer "+ApiKey())
 
 	return req, nil
+}
+
+func CheckStatusCode(res *http.Response, code int) bool {
+	return res.StatusCode == code
+}
+
+func DecodeResponse(res *http.Response, parsedRecord interface{}) error {
+	return json.NewDecoder(res.Body).Decode(&parsedRecord)
+}
+
+func ExecuteRequest(req *http.Request) (*http.Response, error) {
+	var client http.Client
+	client = http.Client{}
+
+	return client.Do(req)
 }
