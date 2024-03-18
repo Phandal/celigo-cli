@@ -37,8 +37,8 @@ func CheckStatusCode(res *http.Response, code int) bool {
 	return res.StatusCode == code
 }
 
-func DecodeResponse(res *http.Response, parsedRecord interface{}) error {
-	return json.NewDecoder(res.Body).Decode(&parsedRecord)
+func DecodeResponse(input io.ReadCloser, parsedRecord interface{}) error {
+	return json.NewDecoder(input).Decode(&parsedRecord)
 }
 
 func ExecuteRequest(req *http.Request) (*http.Response, error) {

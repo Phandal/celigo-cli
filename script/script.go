@@ -52,7 +52,7 @@ func list(_ *arg.Command) error {
 		return fmt.Errorf("List Status Code %v\n", res.StatusCode)
 	}
 
-	if util.DecodeResponse(res, &scripts) != nil {
+	if util.DecodeResponse(res.Body, &scripts) != nil {
 		return err
 	}
 
@@ -85,7 +85,7 @@ func fetch(_ *arg.Command) error {
 		return fmt.Errorf("Fetch Status Code %v\n", res.StatusCode)
 	}
 
-	if util.DecodeResponse(res, &script) != nil {
+	if util.DecodeResponse(res.Body, &script) != nil {
 		return err
 	}
 
