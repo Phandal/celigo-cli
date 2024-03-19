@@ -2,28 +2,45 @@ package arg
 
 import (
 	"errors"
+	"fmt"
+	"os"
+	"strings"
 )
-
-type Flag struct {
-	Name  string
-	Value string
-}
 
 type Command struct {
 	Resource string
 	Action   string
-	Options  []Flag
+	Options  map[string]string
 }
 
-func parseFlags(flags []string) []Flag {
-	var parsedFlags []Flag
+func (cmd *Command) RegisterFlag(o *string, short string, long string, name string, usage string, defValue string) error {
+	valueShort, presentShort := cmd.Options[short]
+	valueLong, presentLong := cmd.Options[long]
+
+	if presentShort {
+		*o = valueShort
+	} else if presentLong {
+		*o = valueLong
+	} else if defValue != "" {
+		*o = defValue
+	} else {
+		return fmt.Errorf("Missing argument: %s", name)
+	}
+
+	return nil
+}
+
+func parseFlags(flags []string) map[string]string {
+	var parsedFlags = make(map[string]string)
 	var currentArg string
 	for _, v := range flags {
 		if currentArg == "" {
 			currentArg = v
 			continue
+		} else if strings.HasPrefix(currentArg, "-") || strings.HasPrefix(currentArg, "--") {
+			parsedFlags[currentArg] = true
 		} else {
-			parsedFlags = append(parsedFlags, Flag{Name: currentArg, Value: v})
+			parsedFlags[currentArg] = v
 			currentArg = ""
 		}
 	}
@@ -33,8 +50,8 @@ func parseFlags(flags []string) []Flag {
 
 func Parse(args []string) (Command, error) {
 	if len(args) == 2 {
-		if args[1] == "-h" || args[1] == "--help" {
-			return Command{Resource: "help", Action: "", Options: []Flag{}}, nil
+		if args[1] == "-h" || args[1] == "--help" || args[1] == "help" {
+			return Command{Resource: "help", Action: ""}, nil
 		}
 	}
 
@@ -47,6 +64,8 @@ func Parse(args []string) (Command, error) {
 		Action:   args[2],
 		Options:  parseFlags(args[3:]),
 	}
+
+	os.Args = os.Args[2:]
 
 	return cmd, nil
 }
