@@ -10,7 +10,7 @@ import (
 
 func usage() {
 	fmt.Println("Usage:")
-	fmt.Printf("\t%v <resource> <action> [options]\n", os.Args[0])
+	fmt.Printf("\t%s <resource> <action> [options]\n", os.Args[0])
 }
 
 func run(cmd *arg.Command) error {
@@ -21,7 +21,7 @@ func run(cmd *arg.Command) error {
 	case "script":
 		return script.Execute(cmd)
 	default:
-		return fmt.Errorf("Unknown Resource Type \"%v\"\n", cmd.Resource)
+		return fmt.Errorf("Unknown Resource Type \"%s\"", cmd.Resource)
 	}
 }
 
@@ -31,14 +31,14 @@ func main() {
 
 	cmd, err = arg.Parse(os.Args)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v: %v\n", os.Args[0], err)
+		fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], err)
 		usage()
 		os.Exit(1)
 	}
 
 	err = run(&cmd)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v: %v\n", os.Args[0], err)
+		fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], err)
 		os.Exit(1)
 	}
 }
