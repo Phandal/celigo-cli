@@ -1,7 +1,6 @@
 package script
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -9,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/Phandal/celigo-cli/arg"
-	"github.com/Phandal/celigo-cli/celigo"
+	"github.com/Phandal/celigo-cli/client"
 )
 
 const (
