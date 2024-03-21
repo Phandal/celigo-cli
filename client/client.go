@@ -60,8 +60,8 @@ func decodeResponse(input io.ReadCloser, parsedRecord any) error {
 	return json.NewDecoder(input).Decode(&parsedRecord)
 }
 
-func encodeBody(resource any, content io.Writer) error {
-	return json.NewEncoder(content).Encode(resource)
+func encodeBody(resource any) ([]byte, error) {
+	return json.Marshal(resource)
 }
 
 func executeRequest(celigoRequest *celigoRequest) error {
@@ -99,13 +99,14 @@ func newCeligoRequest(method string, relativeUrl string, body *bytes.Buffer, cod
 }
 
 func ExecutePut(relativeUrl string, resource any, code int, returnResource any) error {
-	var content = bytes.NewBuffer(nil)
+	var content = []byte{}
+	var err error
 
-	if err := encodeBody(resource, content); err != nil {
+	if content, err = encodeBody(resource); err != nil {
 		return err
 	}
 
-	var req = newCeligoRequest("PUT", relativeUrl, content, code, returnResource)
+	var req = newCeligoRequest("PUT", relativeUrl, bytes.NewBuffer(content), code, returnResource)
 	return executeRequest(req)
 }
 
