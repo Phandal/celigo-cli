@@ -3,52 +3,43 @@ package arg
 import (
 	"errors"
 	"fmt"
-	"os"
-	"strings"
 )
 
 type Command struct {
 	Resource string
 	Action   string
-	Options  map[string]string
+	Args     []string
 }
 
-func (cmd *Command) RegisterFlag(o *string, short string, long string, name string, usage string, defValue string) error {
-	valueShort, presentShort := cmd.Options[short]
-	valueLong, presentLong := cmd.Options[long]
+type Value interface {
+	String() string
+	Set(string) error
+}
 
-	if presentShort {
-		*o = valueShort
-	} else if presentLong {
-		*o = valueLong
-	} else if defValue != "" {
-		*o = defValue
-	} else {
-		return fmt.Errorf("Missing argument: %s", name)
+type intValue int
+type boolValue bool
+
+// NOTE: trying to make this generic to handle all types
+func newIntValue[T *int | *bool](v T, d T) *Value {
+	switch v := any(v).(type) {
+	case *int:
+		*v = (*int)(d)
+		return (*intValue)(v)
+	case *bool:
+		*v = d
+
 	}
-
-	return nil
 }
 
-func parseFlags(flags []string) map[string]string {
-	var parsedFlags = make(map[string]string)
-	var currentArg string
-	for _, v := range flags {
-		if currentArg == "" {
-			currentArg = v
-			continue
-		} else if strings.HasPrefix(currentArg, "-") || strings.HasPrefix(currentArg, "--") {
-			parsedFlags[currentArg] = true
-		} else {
-			parsedFlags[currentArg] = v
-			currentArg = ""
-		}
-	}
-
-	return parsedFlags
+func (c *Command) RegisterInt(v *int, short string, long string, name string, usage string, defaultValue int) {
+	c.NewFlag(newIntValue(v, defaultValue), short, long, name, usage)
 }
 
-func Parse(args []string) (Command, error) {
+func (c *Command) RegisterBool(v *bool, short string, long string, name string, usage string, defaultValue bool) {
+	c.NewFlag(newBoolValue(v, defaultValue), short, long, name, usage)
+}
+
+func NewCommand(args []string) (Command, error) {
 	if len(args) == 2 {
 		if args[1] == "-h" || args[1] == "--help" || args[1] == "help" {
 			return Command{Resource: "help", Action: ""}, nil
@@ -62,10 +53,8 @@ func Parse(args []string) (Command, error) {
 	cmd := Command{
 		Resource: args[1],
 		Action:   args[2],
-		Options:  parseFlags(args[3:]),
+		Args:     args[3:],
 	}
-
-	os.Args = os.Args[2:]
 
 	return cmd, nil
 }

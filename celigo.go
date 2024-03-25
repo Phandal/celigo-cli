@@ -29,7 +29,7 @@ func main() {
 	var cmd arg.Command
 	var err error
 
-	cmd, err = arg.Parse(os.Args)
+	cmd, err = arg.NewCommand(os.Args)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s: %s\n", os.Args[0], err)
 		usage()
