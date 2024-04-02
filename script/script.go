@@ -67,11 +67,18 @@ func fetch(cmd *arg.Command) error {
 
 	var id string
 	var force bool
+	var outputPath string
 
-	cmd.RegisterInt(&id, "-i", "--id", "id", "the ID of the script to fetch", "")
-	cmd.RegisterBool(&force, "-f", "--force", "force", "overwrites the local script file", false)
+	cmd.RegisterString(&id, "i", "id", "the ID of the script to fetch", "", true)
+	cmd.RegisterBool(&force, "f", "force", "overwrites the local script file", false, false)
+	cmd.RegisterString(&outputPath, "o", "output", "output path to write the script file", ".", false)
 
-	cmd.ParseFlag()
+	err = cmd.Parse()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("ID: %s\tForce: %t\tPath: %s\n", id, force, outputPath)
 
 	if err := celigo.ExecuteGet(relativeUrl+"/"+id, Fetch, &script); err != nil {
 		return fmt.Errorf("Failed to fetch script: %s", err)
