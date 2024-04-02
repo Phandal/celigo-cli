@@ -3,6 +3,7 @@ package celigo
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,29 +17,41 @@ var memoizedApiKey string
 type celigoRequest struct {
 	Method    string
 	Url       string
-	Body      io.Reader
+	Body      *bytes.Buffer
 	Code      int
 	Resources any
 }
 
-func apiKey() string {
+func apiKey() (string, error) {
 	if memoizedApiKey == "" {
 		memoizedApiKey = os.Getenv("CELIGO_API_KEY")
 	}
 
-	return memoizedApiKey
+	if len(memoizedApiKey) == 0 {
+		return "", errors.New("missing CELIGO_API_KEY environment variable")
+	}
+	return memoizedApiKey, nil
 }
 
-func buildRequest(method string, url string, body io.Reader) (*http.Request, error) {
+func buildRequest(method string, url string, body *bytes.Buffer) (*http.Request, error) {
 	var err error
 	var req *http.Request
-
-	req, err = http.NewRequest(method, url, body)
+	apikey, err := apiKey()
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", "Bearer "+apiKey())
+	if body != nil {
+		req, err = http.NewRequest(method, url, body)
+	} else {
+		req, err = http.NewRequest(method, url, nil)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Authorization", "Bearer "+apikey)
 	req.Header.Add("Content-Type", "application/json; charset=utf-8")
 	req.Header.Add("Accept", "application/json")
 

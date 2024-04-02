@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -51,6 +52,7 @@ func list(_ *arg.Command) error {
 		return fmt.Errorf("Failed to list scripts: %s", err)
 	}
 
+	fmt.Printf("%-32s%s\n", "ID", "NAME")
 	for _, v := range scripts {
 		fmt.Printf("%s\t%s\n", v.Id, v.Name)
 	}
@@ -62,56 +64,56 @@ func fetch(cmd *arg.Command) error {
 	var err error
 	var script Script
 
-	// var id = "65f10091892c590e57254963" // TODO: Find a way to search through the flags for this value
-	// var shouldWrite = true              // TODO: make boolean flags work in the parser
-
 	var id string
 	var force bool
 	var outputPath string
 
 	cmd.RegisterString(&id, "i", "id", "the ID of the script to fetch", "", true)
 	cmd.RegisterBool(&force, "f", "force", "overwrites the local script file", false, false)
-	cmd.RegisterString(&outputPath, "o", "output", "output path to write the script file", ".", false)
+	cmd.RegisterString(&outputPath, "o", "output", "output path to write the script file", "", false)
 
 	err = cmd.Parse()
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("ID: %s\tForce: %t\tPath: %s\n", id, force, outputPath)
-
 	if err := celigo.ExecuteGet(relativeUrl+"/"+id, Fetch, &script); err != nil {
 		return fmt.Errorf("Failed to fetch script: %s", err)
 	}
 
-	fmt.Printf("ID: %s\nName: %s\nDescription: %s\nLast Modified Date: %s\n", script.Id, script.Name, script.Description, script.LastModified)
-
 	// TODO: Move to function that always writes to file, however checks for overwrite and only overwrites if the -o flag is present
-	if force == true {
+	if outputPath != "" {
 		var filename = script.Name + "__" + script.Id + ".js"
-		err = os.WriteFile(filename, []byte(script.Content), 0660)
+		if _, err := os.Stat(outputPath); err != nil {
+			return err
+		}
+		err = os.WriteFile(path.Join(outputPath, filename), []byte(script.Content), 0660)
 		if err != nil {
 			return err
 		}
 		fmt.Printf("Wrote Contents to file: %s\n", filename)
+	} else {
+		fmt.Println(script.Content)
 	}
 
 	return nil
 }
 
-func update(_ *arg.Command) error {
+func update(cmd *arg.Command) error {
 	var err error
 	var scriptName string
 	var id string
 	var content []byte
 
-	var filename = "Test Script 1__65f10091892c590e57254963.js" // TODO: Find a way to get this from the user
+	var filename string
+	cmd.RegisterString(&filename, "i", "input", "path to script contents file", "", true)
+	cmd.Parse()
 
 	if content, err = readScriptFile(filename); err != nil {
 		return err
 	}
 
-	if scriptName, id, err = parseFilename(filename); err != nil {
+	if scriptName, id, err = parseFilename(path.Base(filename)); err != nil {
 		return err
 	}
 
