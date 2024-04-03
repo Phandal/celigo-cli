@@ -87,11 +87,13 @@ func fetch(cmd *arg.Command) error {
 		if _, err := os.Stat(outputPath); err != nil {
 			return err
 		}
-		err = os.WriteFile(path.Join(outputPath, filename), []byte(script.Content), 0660)
+
+		filepath := path.Join(outputPath, filename)
+		err = os.WriteFile(filepath, []byte(script.Content), 0660)
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Wrote Contents to file: %s\n", filename)
+		fmt.Printf("Wrote Contents to file:\n%s\n", filepath)
 	} else {
 		fmt.Println(script.Content)
 	}
