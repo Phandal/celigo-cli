@@ -8,9 +8,12 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 )
 
 const baseUrl = "https://api.integrator.io/v1"
+const celigoCliFile = ".celigo-cli"
+const celigoCliEnvKey = "CELIGO_API_KEY"
 
 var memoizedApiKey string
 
@@ -22,13 +25,34 @@ type celigoRequest struct {
 	Resources any
 }
 
+func getApiKey() (string, error) {
+	_, err := os.Stat(celigoCliFile)
+	if err == nil {
+		file, err := os.Open(celigoCliFile)
+		if err != nil {
+			return "", err
+		}
+		contents, err := io.ReadAll(file)
+		if err != nil {
+			return "", err
+		}
+		return strings.TrimSpace(string(contents)), nil
+	} else {
+		return os.Getenv(celigoCliEnvKey), nil
+	}
+}
+
 func apiKey() (string, error) {
 	if memoizedApiKey == "" {
-		memoizedApiKey = os.Getenv("CELIGO_API_KEY")
+		key, err := getApiKey()
+		if err != nil {
+			return "", err
+		}
+		memoizedApiKey = key
 	}
 
 	if len(memoizedApiKey) == 0 {
-		return "", errors.New("missing CELIGO_API_KEY environment variable")
+		return "", errors.New("missing CELIGO_API_KEY")
 	}
 	return memoizedApiKey, nil
 }
