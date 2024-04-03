@@ -14,6 +14,7 @@ import (
 
 const (
 	List   int = 200
+	Create int = 201
 	Fetch  int = 200
 	Update int = 200
 )
@@ -36,6 +37,8 @@ func Execute(cmd *arg.Command) error {
 	switch cmd.Action {
 	case "list":
 		return list(cmd)
+	case "create":
+		return create(cmd)
 	case "fetch":
 		return fetch(cmd)
 	case "update":
@@ -56,6 +59,26 @@ func list(_ *arg.Command) error {
 	for _, v := range scripts {
 		fmt.Printf("%s\t%s\n", v.Id, v.Name)
 	}
+
+	return nil
+}
+
+func create(cmd *arg.Command) error {
+	var err error
+
+	var title string
+	cmd.RegisterString(&title, "t", "title", "title of the script to create", "", true)
+	cmd.Parse()
+
+	script := Script{
+		Name: title,
+	}
+
+	if err = celigo.ExecutePost(relativeUrl, &script, Create, &script); err != nil {
+		return fmt.Errorf("Failed to create script: %s", err)
+	}
+
+	fmt.Printf("Successfully Created Script:\n%s\t %s\n", script.Id, script.Name)
 
 	return nil
 }

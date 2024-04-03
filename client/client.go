@@ -151,3 +151,15 @@ func ExecuteGet(relativeUrl string, code int, returnResource any) error {
 	var req = newCeligoRequest("GET", relativeUrl, nil, code, returnResource)
 	return executeRequest(req)
 }
+
+func ExecutePost(relativeUrl string, resource any, code int, returnResource any) error {
+	var content = []byte{}
+	var err error
+
+	if content, err = encodeBody(resource); err != nil {
+		return err
+	}
+
+	var req = newCeligoRequest("POST", relativeUrl, bytes.NewBuffer(content), code, returnResource)
+	return executeRequest(req)
+}
