@@ -1,22 +1,19 @@
+**NOTE: This project is still under active development and things will break!**
+
 # celigo-cli
 Celigo Cli allows you to interact with the celigo platform, through your terminal
 
-## How I would like to interact with the cli
-I would like the use to be able to enter the celigo command and then choose your resource
-type (script, export, import, etc...) then enter the action. For example, the script actions would
-look something like the following:
+## API Key
+Your API Key is read from the following locations in order:
+1. `.celigo-cli` file in the current directory. This file will list the api key on the first line.
+2. `CELIGO_API_KEY` environment variable.
 
+## Usage
+Currently, only the script resource type is supported
 ```bash
 celigo script list
-celigo script fetch -i <ID> [ -o <Path/To/Output File Name>]
-celigo script update -i <ID> [ -c <Path/To/Source File Name> -n <Name> -d <Description> ]
-celigo script add -n <Name> [ -d <Description> -c <Path/To/Source File Name>]
+celigo script fetch -i <ID> [ -o <Path/To/Output/Directory]
+celigo script update -i <Path/To/Source File>
+celigo script add -n <ScriptName>
 celigo script remove -i <ID>
 ```
-
-The API Key will be read from the current working direcotry in the ".celigo" file. This file will
-contain the api key on one line, and thats it.
-
-## MVP
-- Read api key from users home directory or custom path
-- Script resource working for the options listed above
