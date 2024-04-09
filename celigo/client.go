@@ -25,6 +25,11 @@ type celigoRequest struct {
 	Resources any
 }
 
+type celigoError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
 func getApiKey() (string, error) {
 	_, err := os.Stat(celigoCliFile)
 	if err == nil {
@@ -161,5 +166,11 @@ func ExecutePost(relativeUrl string, resource any, code int, returnResource any)
 	}
 
 	var req = newCeligoRequest("POST", relativeUrl, bytes.NewBuffer(content), code, returnResource)
+	return executeRequest(req)
+}
+
+func ExecuteDelete(relativeUrl string, code int) error {
+	celigoErrors := make([]celigoError, 0, 1)
+	req := newCeligoRequest("DELETE", relativeUrl, nil, code, &celigoErrors)
 	return executeRequest(req)
 }

@@ -1,4 +1,4 @@
-package script
+package celigo
 
 import (
 	"fmt"
@@ -7,9 +7,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-
-	"github.com/Phandal/celigo-cli/arg"
-	"github.com/Phandal/celigo-cli/client"
 )
 
 const (
@@ -17,6 +14,7 @@ const (
 	Create int = 201
 	Fetch  int = 200
 	Update int = 200
+	Remove int = 204
 )
 
 type Script struct {
@@ -33,7 +31,7 @@ type Script struct {
 const relativeUrl = "/scripts"
 const filenameSeperator = "__"
 
-func Execute(cmd *arg.Command) error {
+func ExecuteScriptResource(cmd *Command) error {
 	switch cmd.Action {
 	case "list":
 		return list(cmd)
@@ -43,15 +41,17 @@ func Execute(cmd *arg.Command) error {
 		return fetch(cmd)
 	case "update":
 		return update(cmd)
+	case "remove":
+		return remove(cmd)
 	default:
 		return fmt.Errorf("Unknown Action \"%s\"", cmd.Action)
 	}
 }
 
-func list(_ *arg.Command) error {
+func list(_ *Command) error {
 	var scripts []Script
 
-	if err := celigo.ExecuteGet(relativeUrl, List, &scripts); err != nil {
+	if err := ExecuteGet(relativeUrl, List, &scripts); err != nil {
 		return fmt.Errorf("Failed to list scripts: %s", err)
 	}
 
@@ -63,7 +63,7 @@ func list(_ *arg.Command) error {
 	return nil
 }
 
-func create(cmd *arg.Command) error {
+func create(cmd *Command) error {
 	var err error
 
 	var title string
@@ -74,7 +74,7 @@ func create(cmd *arg.Command) error {
 		Name: title,
 	}
 
-	if err = celigo.ExecutePost(relativeUrl, &script, Create, &script); err != nil {
+	if err = ExecutePost(relativeUrl, &script, Create, &script); err != nil {
 		return fmt.Errorf("Failed to create script: %s", err)
 	}
 
@@ -83,7 +83,7 @@ func create(cmd *arg.Command) error {
 	return nil
 }
 
-func fetch(cmd *arg.Command) error {
+func fetch(cmd *Command) error {
 	var err error
 	var script Script
 
@@ -100,7 +100,7 @@ func fetch(cmd *arg.Command) error {
 		return err
 	}
 
-	if err := celigo.ExecuteGet(relativeUrl+"/"+id, Fetch, &script); err != nil {
+	if err := ExecuteGet(relativeUrl+"/"+id, Fetch, &script); err != nil {
 		return fmt.Errorf("Failed to fetch script: %s", err)
 	}
 
@@ -124,7 +124,7 @@ func fetch(cmd *arg.Command) error {
 	return nil
 }
 
-func update(cmd *arg.Command) error {
+func update(cmd *Command) error {
 	var err error
 	var scriptName string
 	var id string
@@ -148,11 +148,25 @@ func update(cmd *arg.Command) error {
 		Content: string(content),
 	}
 
-	if err = celigo.ExecutePut(relativeUrl+"/"+id, &script, Update, &script); err != nil {
+	if err = ExecutePut(relativeUrl+"/"+id, &script, Update, &script); err != nil {
 		return fmt.Errorf("Failed to update script: %s", err)
 	}
 
 	fmt.Printf("Successfully Updated Script: %s\t%s\n", script.Id, script.Name)
+
+	return nil
+}
+
+func remove(cmd *Command) error {
+	var id string
+	cmd.RegisterString(&id, "i", "id", "id of the script to remove", "", true)
+	cmd.Parse()
+
+	if err := ExecuteDelete(relativeUrl+"/"+id, Remove); err != nil {
+		return fmt.Errorf("Failed to remove script: %s", err)
+	}
+
+	fmt.Printf("Successfully Removed Script with Id: %s", id)
 
 	return nil
 }
