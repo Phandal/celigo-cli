@@ -28,24 +28,45 @@ type Script struct {
 	Content                                string `json:"content,omitempty"`
 }
 
+type Action struct {
+	Run  func(cmd *Command) error
+	Help string
+}
+
 const relativeUrl = "/scripts"
 const filenameSeperator = "__"
 
+func scriptError(action string) error {
+	return fmt.Errorf("Invalid action %s. Run \"celig-cli script help\" to see supported actions", action)
+}
+
+var actions = map[string]Action{
+	"list":   {list, "list all scripts in Celigo"},
+	"create": {create, "create a new script in Celigo"},
+	"fetch":  {fetch, "print the contents of a script in Celigo"},
+	"update": {update, "update the contents of a script in Celigo"},
+	"remove": {remove, "delete a script from Celigo"},
+}
+
 func ExecuteScriptResource(cmd *Command) error {
-	switch cmd.Action {
-	case "list":
-		return list(cmd)
-	case "create":
-		return create(cmd)
-	case "fetch":
-		return fetch(cmd)
-	case "update":
-		return update(cmd)
-	case "remove":
-		return remove(cmd)
-	default:
-		return fmt.Errorf("Unknown Action \"%s\"", cmd.Action)
+	if cmd.Action == "help" {
+		return help(cmd)
 	}
+
+	if action, exists := actions[cmd.Action]; !exists {
+		return scriptError(cmd.Action)
+	} else {
+		return action.Run(cmd)
+	}
+}
+
+func help(_ *Command) error {
+	fmt.Println("Script Actions:")
+	for name, action := range actions {
+		fmt.Printf("  %-15s%s\n", name, action.Help)
+	}
+
+	return nil
 }
 
 func list(_ *Command) error {
