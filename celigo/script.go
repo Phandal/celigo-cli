@@ -40,17 +40,17 @@ func scriptError(action string) error {
 	return fmt.Errorf("Invalid action %s. Run \"celig-cli script help\" to see supported actions", action)
 }
 
-var actions = map[string]Action{
-	"list":   {list, "list all scripts in Celigo"},
-	"create": {create, "create a new script in Celigo"},
-	"fetch":  {fetch, "print the contents of a script in Celigo"},
-	"update": {update, "update the contents of a script in Celigo"},
-	"remove": {remove, "delete a script from Celigo"},
-}
-
 func ExecuteScriptResource(cmd *Command) error {
+	actions := map[string]Action{
+		"list":   {list, "list all scripts in Celigo"},
+		"create": {create, "create a new script in Celigo"},
+		"fetch":  {fetch, "print the contents of a script in Celigo"},
+		"update": {update, "update the contents of a script in Celigo"},
+		"remove": {remove, "delete a script from Celigo"},
+	}
+
 	if cmd.Action == "help" {
-		return help(cmd)
+		return help(actions)
 	}
 
 	if action, exists := actions[cmd.Action]; !exists {
@@ -60,7 +60,7 @@ func ExecuteScriptResource(cmd *Command) error {
 	}
 }
 
-func help(_ *Command) error {
+func help(actions map[string]Action) error {
 	fmt.Println("Script Actions:")
 	for name, action := range actions {
 		fmt.Printf("  %-15s%s\n", name, action.Help)
