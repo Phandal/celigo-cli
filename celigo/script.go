@@ -88,7 +88,9 @@ func create(cmd *Command) error {
 	var err error
 
 	var title string
+	var outputPath string
 	cmd.RegisterString(&title, "t", "title", "title of the script to create", "", true)
+	cmd.RegisterString(&outputPath, "o", "output", "output path to write the script file", "", false)
 	cmd.Parse()
 
 	script := Script{
@@ -97,6 +99,21 @@ func create(cmd *Command) error {
 
 	if err = ExecutePost(relativeUrl, &script, Create, &script); err != nil {
 		return fmt.Errorf("Failed to create script: %s", err)
+	}
+
+	// TODO: Move to function that checks for overwrites and --force flag
+	if outputPath != "" {
+		filename := script.Name + filenameSeperator + script.Id + ".js"
+		if _, err := os.Stat(outputPath); err != nil {
+			return err
+		}
+
+		filepath := path.Join(outputPath, filename)
+		err = os.WriteFile(filepath, []byte(script.Content), 0660)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Wrote Contents to file:\n%s\n", filepath)
 	}
 
 	fmt.Printf("Successfully Created Script:\n%s\t %s\n", script.Id, script.Name)
@@ -125,7 +142,7 @@ func fetch(cmd *Command) error {
 		return fmt.Errorf("Failed to fetch script: %s", err)
 	}
 
-	// TODO: Move to function that always writes to file, however checks for overwrite and only overwrites if the -o flag is present
+	// TODO: Move to function that checks for overwrites and --force flag
 	if outputPath != "" {
 		var filename = script.Name + "__" + script.Id + ".js"
 		if _, err := os.Stat(outputPath); err != nil {
