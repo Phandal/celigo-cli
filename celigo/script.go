@@ -101,6 +101,8 @@ func create(cmd *Command) error {
 		return fmt.Errorf("Failed to create script: %s", err)
 	}
 
+	fmt.Printf("Successfully Created Script:\n%s\t %s\n", script.Id, script.Name)
+
 	// TODO: Move to function that checks for overwrites and --force flag
 	if outputPath != "" {
 		filename := script.Name + filenameSeperator + script.Id + ".js"
@@ -115,8 +117,6 @@ func create(cmd *Command) error {
 		}
 		fmt.Printf("Wrote Contents to file:\n%s\n", filepath)
 	}
-
-	fmt.Printf("Successfully Created Script:\n%s\t %s\n", script.Id, script.Name)
 
 	return nil
 }
