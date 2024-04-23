@@ -9,7 +9,7 @@ type HelpAction struct {
 	resources *map[string]MappedResource
 }
 
-func (h HelpAction) Execute() error {
+func (h *HelpAction) Execute() error {
 	if isHelp, err := h.Parse("Usage: celigo-cli help\n"); err != nil {
 		return err
 	} else if isHelp {
@@ -24,7 +24,7 @@ func (h HelpAction) Execute() error {
 }
 
 func newHelpAction(args []string, resources *map[string]MappedResource) ActionExecuter {
-	action := HelpAction{
+	action := &HelpAction{
 		BaseAction: BaseAction{
 			usage: "show this help message",
 			args:  args,

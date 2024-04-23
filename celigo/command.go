@@ -5,11 +5,6 @@ import (
 	"fmt"
 )
 
-type ActionExecuter interface {
-	Execute() error
-	Usage() string
-}
-
 type ResourceBuilder = func(string, *Command) Resource
 
 type MappedResource struct {

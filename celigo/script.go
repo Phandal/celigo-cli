@@ -59,7 +59,7 @@ func readScriptFile(scriptName string) ([]byte, error) {
 
 type ScriptHelpAction BaseHelpAction
 
-func (s ScriptHelpAction) Execute() error {
+func (s *ScriptHelpAction) Execute() error {
 	if isHelp, err := s.Parse("Usage: celigo-cli script help\n"); err != nil {
 		return err
 	} else if isHelp {
@@ -73,7 +73,7 @@ func (s ScriptHelpAction) Execute() error {
 	return nil
 }
 
-func newScriptHelpAction(args []string, actions *map[string]ActionExecuter) ScriptHelpAction {
+func newScriptHelpAction(args []string, actions *map[string]ActionExecuter) *ScriptHelpAction {
 	action := ScriptHelpAction{
 		BaseAction: BaseAction{
 			usage: "show this help message",
@@ -82,14 +82,14 @@ func newScriptHelpAction(args []string, actions *map[string]ActionExecuter) Scri
 		actions: actions,
 	}
 
-	return action
+	return &action
 }
 
 type ScriptListAction struct {
 	BaseAction
 }
 
-func newScriptListAction(args []string) ScriptListAction {
+func newScriptListAction(args []string) *ScriptListAction {
 	action := ScriptListAction{
 		BaseAction: BaseAction{
 			usage: "list all scripts in Celigo",
@@ -97,10 +97,10 @@ func newScriptListAction(args []string) ScriptListAction {
 		},
 	}
 
-	return action
+	return &action
 }
 
-func (s ScriptListAction) Execute() error {
+func (s *ScriptListAction) Execute() error {
 	var scripts []Script
 
 	if isHelp, err := s.Parse("Usage: celigo-cli script list\n"); err != nil {
@@ -127,7 +127,7 @@ type ScriptCreateAction struct {
 	outputPath string
 }
 
-func newScriptCreateAction(args []string) ScriptCreateAction {
+func newScriptCreateAction(args []string) *ScriptCreateAction {
 	action := ScriptCreateAction{
 		BaseAction: BaseAction{
 			usage: "create a script in Celigo",
@@ -139,10 +139,10 @@ func newScriptCreateAction(args []string) ScriptCreateAction {
 	action.RegisterString(&action.title, "t", "title", "title of the script to create", "", true)
 	action.RegisterString(&action.outputPath, "o", "output", "output path to write the script file", "", false)
 
-	return action
+	return &action
 }
 
-func (s ScriptCreateAction) Execute() error {
+func (s *ScriptCreateAction) Execute() error {
 	if isHelp, err := s.Parse("Usage: celigo-cli script create [options]\n\n"); err != nil {
 		return err
 	} else if isHelp {
@@ -184,7 +184,7 @@ type ScriptFetchAction struct {
 	outputPath string
 }
 
-func newScriptFetchAction(args []string) ScriptFetchAction {
+func newScriptFetchAction(args []string) *ScriptFetchAction {
 	action := ScriptFetchAction{
 		BaseAction: BaseAction{
 			usage: "fetch a script from Celigo",
@@ -197,10 +197,10 @@ func newScriptFetchAction(args []string) ScriptFetchAction {
 	action.RegisterBool(&action.force, "f", "force", "overwrites the local script file", false, false)
 	action.RegisterString(&action.outputPath, "o", "output", "output path to write the script file", "", false)
 
-	return action
+	return &action
 }
 
-func (s ScriptFetchAction) Execute() error {
+func (s *ScriptFetchAction) Execute() error {
 	var script Script
 
 	if isHelp, err := s.Parse("Usage: celigo-cli script fetch [options]\n\n"); err != nil {
@@ -229,7 +229,6 @@ func (s ScriptFetchAction) Execute() error {
 	} else {
 		fmt.Println(script.Content)
 	}
-	fmt.Printf("id: %s\n", s.id)
 
 	return nil
 }
@@ -239,7 +238,7 @@ type ScriptUpdateAction struct {
 	filename string
 }
 
-func newScriptUpdateAction(args []string) ScriptUpdateAction {
+func newScriptUpdateAction(args []string) *ScriptUpdateAction {
 	action := ScriptUpdateAction{
 		BaseAction: BaseAction{
 			usage: "update a script in Celigo",
@@ -250,10 +249,10 @@ func newScriptUpdateAction(args []string) ScriptUpdateAction {
 
 	action.RegisterString(&action.filename, "i", "input", "path to script contents file", "", true)
 
-	return action
+	return &action
 }
 
-func (s ScriptUpdateAction) Execute() error {
+func (s *ScriptUpdateAction) Execute() error {
 	if isHelp, err := s.Parse("Usage: celigo-cli script update [options]\n\n"); err != nil {
 		return err
 	} else if isHelp {
@@ -290,7 +289,7 @@ type ScriptRemoveAction struct {
 	id string
 }
 
-func newScriptRemoveAction(args []string) ScriptRemoveAction {
+func newScriptRemoveAction(args []string) *ScriptRemoveAction {
 	action := ScriptRemoveAction{
 		BaseAction: BaseAction{
 			usage: "remove a script from Celigo",
@@ -301,10 +300,10 @@ func newScriptRemoveAction(args []string) ScriptRemoveAction {
 
 	action.RegisterString(&action.id, "i", "id", "id of the script to remove", "", true)
 
-	return action
+	return &action
 }
 
-func (s ScriptRemoveAction) Execute() error {
+func (s *ScriptRemoveAction) Execute() error {
 	if isHelp, err := s.Parse("Usage: celigo-cli script update [options]\n\n"); err != nil {
 		return err
 	} else if isHelp {

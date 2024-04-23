@@ -1,5 +1,10 @@
 package celigo
 
+type ActionExecuter interface {
+	Execute() error
+	Usage() string
+}
+
 type BaseAction struct {
 	usage string
 	args  []string
