@@ -5,31 +5,27 @@ import (
 	"fmt"
 )
 
-type Action interface {
+type ActionExecuter interface {
 	Execute() error
+	Usage() string
+}
+
+type ResourceBuilder = func(string, *Command) Resource
+
+type MappedResource struct {
+	usage   string
+	builder ResourceBuilder
 }
 
 type Command struct {
 	mappedResources map[string]MappedResource
 	ResourceArg     string
 	ActionArg       string
-	Args            []string
-}
-
-type ResourceBuilder = func(*Command) Resource
-
-type Resource struct {
-	usage   string
-	actions map[string]Action
-}
-
-type MappedResource struct {
-	usage     string
-	construct ResourceBuilder
+	args            []string
 }
 
 func (c *Command) NewResource(name string, usage string, builder ResourceBuilder) {
-	c.mappedResources[name] = MappedResource{usage: usage, construct: builder}
+	c.mappedResources[name] = MappedResource{usage: usage, builder: builder}
 }
 
 var missingActionErr = errors.New("missing action")
@@ -40,6 +36,22 @@ func invalidResourceErr(resourceName string) error {
 
 func invalidActionErr(actionName string) error {
 	return fmt.Errorf("invalid action name \"%s\"", actionName)
+}
+
+func (c Command) Execute() error {
+	mappedResource, exists := c.mappedResources[c.ResourceArg]
+	if !exists {
+		return invalidResourceErr(c.ResourceArg)
+	}
+
+	res := mappedResource.builder(mappedResource.usage, &c)
+
+	action, exists := res.actions[c.ActionArg]
+	if !exists {
+		return invalidActionErr(c.ActionArg)
+	}
+
+	return action.Execute()
 }
 
 // Constructs a new Command struct
@@ -61,24 +73,8 @@ func NewCommand(args []string) (Command, error) {
 		mappedResources: make(map[string]MappedResource, 5),
 		ResourceArg:     args[1],
 		ActionArg:       args[2],
-		Args:            args[3:],
+		args:            args[3:],
 	}
 
 	return cmd, nil
-}
-
-func (c Command) Execute() error {
-	mappedResource, exists := c.mappedResources[c.ResourceArg]
-	if !exists {
-		return invalidResourceErr(c.ResourceArg)
-	}
-
-	res := mappedResource.construct(&c)
-
-	action, exists := res.actions[c.ActionArg]
-	if !exists {
-		return invalidActionErr(c.ActionArg)
-	}
-
-	return action.Execute()
 }

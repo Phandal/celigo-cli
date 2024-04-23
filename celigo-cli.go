@@ -21,7 +21,7 @@ func main() {
 	}
 
 	cmd.NewResource("help", "shows this help message", celigo.NewHelpResource)
-	// cmd.NewResource("script", "list, create, fetch, update, remove script", NewScriptResource)
+	cmd.NewResource("script", "list, create, fetch, update, remove script", celigo.NewScriptResource)
 
 	if err := cmd.Execute(); err != nil {
 		printError(programName, err)

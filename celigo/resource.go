@@ -1,27 +1,26 @@
 package celigo
 
-import "fmt"
-
-type HelpAction struct {
-	usage     string
-	resources map[string]MappedResource
+type BaseAction struct {
+	usage string
+	args  []string
+	flags map[string]*Flag
 }
 
-func (h HelpAction) Execute() error {
-	fmt.Printf("Usage: celigo-cli <resource> <action> [options]\n\n")
-	for name, res := range h.resources {
-		fmt.Printf("  %-15s%s\n", name, res.usage)
-	}
-	return nil
+func (b BaseAction) Usage() string {
+	return b.usage
 }
 
-func NewHelpResource(cmd *Command) Resource {
-	actions := map[string]Action{
-		"help": HelpAction{usage: "show this help message", resources: cmd.mappedResources},
-	}
+type BaseHelpAction struct {
+	BaseAction
+	actions *map[string]ActionExecuter
+}
 
-	return Resource{
-		usage:   "show this help message",
-		actions: actions,
-	}
+type Resource struct {
+	usage   string
+	actions map[string]ActionExecuter
+	args    []string
+}
+
+func (r *Resource) newAction(name string, action ActionExecuter) {
+	r.actions[name] = action
 }
