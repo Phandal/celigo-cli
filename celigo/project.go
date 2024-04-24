@@ -51,9 +51,12 @@ func (p *ProjectInitAction) Execute() error {
 		return fmt.Errorf(".env file already exists")
 	}
 
+	// TODO move to a function
 	if p.apiKey == "" {
-		// TODO take input here
-		p.apiKey = "test"
+		fmt.Print("Please enter your api key: ")
+		if _, err := fmt.Scanln(&p.apiKey); err != nil {
+			return fmt.Errorf("failed to take user input: %w", err)
+		}
 	}
 
 	err := os.WriteFile(".env", []byte(p.apiKey), 0660)
