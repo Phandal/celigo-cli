@@ -1,6 +1,7 @@
 package celigo
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -53,9 +54,12 @@ func (p *ProjectInitAction) Execute() error {
 
 	// TODO move to a function
 	if p.apiKey == "" {
+		keyboard := bufio.NewReader(os.Stdin)
 		fmt.Print("Please enter your api key: ")
-		if _, err := fmt.Scanln(&p.apiKey); err != nil {
+		if key, err := keyboard.ReadString('\n'); err != nil {
 			return fmt.Errorf("failed to take user input: %w", err)
+		} else {
+			p.apiKey = key
 		}
 	}
 
