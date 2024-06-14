@@ -67,9 +67,7 @@ func (s *ScriptHelpAction) Execute() error {
 	}
 
 	fmt.Printf("Script Resource Usage: celigo-cli script <action> [options]\n\n")
-	for name, action := range *s.actions {
-		fmt.Printf("  %-15s%s\n", name, action.Usage())
-	}
+	PrintActions(*s.actions)
 	return nil
 }
 

@@ -1,5 +1,7 @@
 package celigo
 
+import "fmt"
+
 type ActionExecuter interface {
 	Execute() error
 	Usage() string
@@ -24,6 +26,10 @@ type Resource struct {
 	usage   string
 	actions map[string]ActionExecuter
 	args    []string
+}
+
+func formatActionForHelpMessage(name string, action ActionExecuter) string {
+	return fmt.Sprintf("  %-15s%s\n", name, action.Usage())
 }
 
 func (r *Resource) newAction(name string, action ActionExecuter) {

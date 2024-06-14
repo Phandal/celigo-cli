@@ -28,10 +28,8 @@ func (p *ProjectHelpAction) Execute() error {
 		return nil
 	}
 
-	fmt.Printf("Project Resource Usage: celigo-cli project <action> [options]\n")
-	for name, action := range *p.actions {
-		fmt.Printf("  %-15s%s\n", name, action.Usage())
-	}
+	fmt.Printf("Project Resource Usage: celigo-cli project <action> [options]\n\n")
+	PrintActions(*p.actions)
 	return nil
 }
 
