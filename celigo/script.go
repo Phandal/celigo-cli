@@ -234,6 +234,7 @@ func (s *ScriptFetchAction) Execute() error {
 type ScriptUpdateAction struct {
 	BaseAction
 	filename string
+	preview  bool
 }
 
 func newScriptUpdateAction(args []string) *ScriptUpdateAction {
@@ -246,6 +247,7 @@ func newScriptUpdateAction(args []string) *ScriptUpdateAction {
 	}
 
 	action.RegisterString(&action.filename, "i", "input", "path to script contents file", "", true)
+	action.RegisterBool(&action.preview, "p", "preview", "preview the update without pushing changes to Celigo", false, false)
 
 	return &action
 }
@@ -265,6 +267,11 @@ func (s *ScriptUpdateAction) Execute() error {
 	scriptName, id, err := parseFilename(path.Base(s.filename))
 	if err != nil {
 		return err
+	}
+
+	if s.preview {
+		fmt.Printf("Preview script update: %s\t%s\n", id, scriptName)
+		return nil
 	}
 
 	script := Script{
