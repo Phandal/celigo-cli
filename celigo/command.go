@@ -19,6 +19,10 @@ type Command struct {
 	args            []string
 }
 
+func (m MappedResource) formatForHelp(name string) string {
+	return fmt.Sprintf("  %-15s%s\n", name, m.usage)
+}
+
 func (c *Command) NewResource(name string, usage string, builder ResourceBuilder) {
 	c.mappedResources[name] = MappedResource{usage: usage, builder: builder}
 }

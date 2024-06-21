@@ -17,9 +17,7 @@ func (h *HelpAction) Execute() error {
 	}
 
 	fmt.Printf("Usage: celigo-cli <resource> <action> [options]\n\n")
-	for name, res := range *h.resources {
-		fmt.Printf("  %-15s%s\n", name, res.usage)
-	}
+	PrintResources(*h.resources)
 	return nil
 }
 

@@ -19,6 +19,10 @@ type Value interface {
 	Set(string) error
 }
 
+func (f *Flag) formatForHelpMessage(name string) string {
+	return fmt.Sprintf("  -%-2s, --%-10s%s\n", f.Short, f.Long, f.Usage)
+}
+
 func numError(err error) error {
 	ne, ok := err.(*strconv.NumError)
 	if !ok {
@@ -192,9 +196,7 @@ func (b *BaseAction) parseOne() (bool, bool, error) {
 
 func (b *BaseAction) Help(usageMessage string) {
 	fmt.Printf("%s", usageMessage)
-	for _, flag := range b.flags {
-		fmt.Printf("  -%-2s, --%-10s%s\n", flag.Short, flag.Long, flag.Usage)
-	}
+	PrintFlags(b.flags)
 }
 
 /* Parses registered Action flags into their respective variables */

@@ -20,6 +20,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	cmd.NewResource("project", "manages projects", celigo.NewProjectResource)
 	cmd.NewResource("help", "shows this help message", celigo.NewHelpResource)
 	cmd.NewResource("script", "list, create, fetch, update, remove script", celigo.NewScriptResource)
 
