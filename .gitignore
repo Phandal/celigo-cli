@@ -1,3 +1,4 @@
 helpers/*
 celigo-cli
 .env
+.DS_Store
