@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/Phandal/celigo-cli/celigo"
+	"github.com/Phandal/celigo-cli/dotenv"
 )
 
 func printError(name string, err error) {
@@ -13,6 +14,8 @@ func printError(name string, err error) {
 
 func main() {
 	programName := os.Args[0]
+	// TODO: Allow the user to specify and environment file
+	dotenv.Parse("")
 
 	cmd, err := celigo.NewCommand(os.Args)
 	if err != nil {
