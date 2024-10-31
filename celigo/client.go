@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 )
 
 const baseUrl = "https://api.integrator.io/v1"
@@ -30,36 +29,14 @@ type response struct {
 	Message string `json:"message"`
 }
 
-func getApiKey() (string, error) {
-	_, err := os.Stat(envFile)
-	if err == nil {
-		file, err := os.Open(envFile)
-		if err != nil {
-			return "", err
-		}
-		contents, err := io.ReadAll(file)
-		if err != nil {
-			return "", err
-		}
-		return strings.TrimSpace(string(contents)), nil
-	} else {
-		return os.Getenv(celigoCliEnvKey), nil
-	}
-}
-
 func apiKey() (string, error) {
-	if memoizedApiKey == "" {
-		key, err := getApiKey()
-		if err != nil {
-			return "", err
-		}
-		memoizedApiKey = key
-	}
+	apiKey := os.Getenv("CELIGO_API_KEY")
 
-	if len(memoizedApiKey) == 0 {
+	if len(apiKey) == 0 {
 		return "", errors.New("missing CELIGO_API_KEY")
 	}
-	return memoizedApiKey, nil
+
+	return apiKey, nil
 }
 
 func buildRequest(method string, url string, body *bytes.Buffer) (*http.Request, error) {
